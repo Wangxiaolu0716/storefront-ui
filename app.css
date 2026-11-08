@@ -1,0 +1,492 @@
+/* =========================================================
+   Storefront UI — 样式表
+   组织顺序：设计变量 → 基础 → 顶栏/搜索 → 骨架屏 → 列表 → 深色适配
+   ========================================================= */
+
+/* ---------- 1. 设计变量 ---------- */
+:root {
+  --brand: #5b54e8;
+  --brand-soft: #eceafd;
+
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-2: #f0f0f4;
+  --text: #12121a;
+  --text-2: #6b6b7b;
+  --text-3: #9a9aab;
+  --line: rgba(18, 18, 26, .07);
+  --bar: rgba(245, 245, 247, .82);
+
+  --radius-card: 20px;
+  --radius-row: 14px;
+  --gutter: 16px;
+  --row-gap: 10px;
+
+  /* 打字时的降级变量：把毛玻璃换成实色，消除合成层重算 */
+  --bar-blur: saturate(180%) blur(20px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --brand: #8b86ff;
+    --brand-soft: #262347;
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2a2a2e;
+    --text: #f2f2f7;
+    --text-2: #a1a1ae;
+    --text-3: #75757f;
+    --line: rgba(255, 255, 255, .09);
+    --bar: rgba(10, 10, 12, .8);
+  }
+}
+
+:root[data-theme='dark'] {
+  --brand: #8b86ff;
+  --brand-soft: #262347;
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2a2a2e;
+  --text: #f2f2f7;
+  --text-2: #a1a1ae;
+  --text-3: #75757f;
+  --line: rgba(255, 255, 255, .09);
+  --bar: rgba(10, 10, 12, .8);
+}
+
+/* ---------- 2. 基础 ---------- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 15px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+        'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+.app {
+  max-width: 480px;
+  min-height: 100%;
+  margin: 0 auto;
+  background: var(--bg);
+}
+
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+/* 组件自己声明了 display，必须让 hidden 属性仍然生效 */
+[hidden] { display: none !important; }
+h1, h2 { margin: 0; }
+
+:where(button, input, a):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+/* ---------- 3. 顶栏与搜索 ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: calc(env(safe-area-inset-top) + 10px) var(--gutter) 8px;
+  background: var(--bar);
+  -webkit-backdrop-filter: var(--bar-blur);
+  backdrop-filter: var(--bar-blur);
+  border-bottom: .5px solid transparent;
+  transition: border-color .18s ease, background .18s ease;
+}
+
+/* 页面滚动后加阴影，靠 JS 只切一个 class，避免每帧读 scrollTop 改样式 */
+.topbar.is-stuck {
+  border-bottom-color: var(--line);
+}
+
+/* 关键性能开关：进入输入态时彻底去掉 backdrop-filter。
+   blur 会强制整条顶栏在每次光标闪烁时重新合成，这是「打字指针卡顿」的主因。 */
+.topbar.is-editing {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--bg);
+}
+
+.topbar__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+}
+
+/* 进入搜索态：整行标题让位，搜索框直接顶到安全区下方 */
+.topbar.is-searching .topbar__row { display: none; }
+.topbar.is-searching .searchrow { margin-top: 0; }
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+}
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: var(--text-2);
+  border-radius: 50%;
+  background: var(--surface-2);
+  transition: transform .15s ease, color .15s ease;
+}
+.icon-btn:active { transform: scale(.92); }
+
+.searchrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.searchbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 38px;
+  padding: 0 8px 0 10px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  transition: background .16s ease, box-shadow .16s ease;
+}
+
+.searchbar__icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: var(--text-3);
+  margin-right: 6px;
+}
+
+.searchbar__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 16px;      /* ≥16px：iOS 上小于 16px 会自动放大视口，造成整页跳动 */
+  outline: none;
+  padding: 0;
+}
+.searchbar__input::placeholder { color: var(--text-3); }
+.searchbar__input::-webkit-search-cancel-button { display: none; }
+
+.ghost-btn {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+  border-radius: 50%;
+}
+.ghost-btn svg { width: 16px; height: 16px; }
+.ghost-btn:active { opacity: .6; }
+
+.cancel-btn {
+  flex: 0 0 auto;
+  color: var(--brand);
+  font-size: 15px;
+  padding: 4px 2px;
+}
+
+/* ---------- 4. 内容区 ---------- */
+.content {
+  padding: 4px var(--gutter) calc(env(safe-area-inset-bottom) + 28px);
+}
+
+/* 搜索页内容不要紧贴顶栏 */
+#searchPane { padding-top: 8px; }
+
+.pane { animation: fade-up .22s ease both; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- 5. 骨架屏 ---------- */
+.skeleton { padding-top: 6px; }
+
+.sk-card,
+.sk-icon,
+.sk-text i,
+.sk-line {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.sk-card { height: 132px; border-radius: var(--radius-card); margin-bottom: 16px; }
+
+.sk-line--title { height: 15px; width: 32%; border-radius: 6px; margin: 18px 0 12px; }
+
+.sk-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.sk-icon { width: 54px; height: 54px; border-radius: 13px; flex: 0 0 auto; }
+
+.sk-text { flex: 1 1 auto; }
+.sk-text i {
+  display: block;
+  height: 11px;
+  border-radius: 5px;
+  margin-bottom: 7px;
+}
+.sk-text i:first-child { width: 42%; }
+.sk-text i:last-child { width: 66%; margin-bottom: 0; }
+
+/* 单向流光：只跑 transform，不触发重排 */
+.sk-card::after,
+.sk-icon::after,
+.sk-text i::after,
+.sk-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .45), transparent);
+  animation: shimmer 1.25s infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sk-card::after,
+  :root:not([data-theme='light']) .sk-icon::after,
+  :root:not([data-theme='light']) .sk-text i::after,
+  :root:not([data-theme='light']) .sk-line::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07), transparent);
+  }
+}
+
+@keyframes shimmer { to { transform: translateX(100%); } }
+
+/* ---------- 6. 编辑推荐大卡 ---------- */
+.promo {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 18px 18px 16px;
+  border-radius: var(--radius-card);
+  color: #fff;
+  background: linear-gradient(140deg, var(--p1), var(--p2));
+  box-shadow: 0 10px 26px -14px rgba(40, 30, 120, .7);
+  transition: transform .18s cubic-bezier(.2, .8, .2, 1);
+}
+.promo:active { transform: scale(.985); }
+
+.promo__tag {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  opacity: .85;
+  margin-bottom: 8px;
+}
+
+.promo__title { font-size: 19px; font-weight: 700; line-height: 1.3; letter-spacing: -.2px; }
+.promo__desc { font-size: 13px; opacity: .82; margin: 6px 0 14px; }
+
+.promo__foot { display: flex; align-items: center; justify-content: space-between; }
+
+.promo__covers { display: flex; }
+.promo__covers span {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  border: 2px solid rgba(255, 255, 255, .55);
+  margin-right: -8px;
+}
+
+.promo__cta {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .2);
+}
+
+/* ---------- 7. 分类 chips ---------- */
+.chips {
+  display: flex;
+  gap: 8px;
+  margin: 16px -4px 4px;
+  padding: 0 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: 0 0 auto;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-2);
+  background: var(--surface);
+  border: .5px solid var(--line);
+  transition: color .15s ease, background .15s ease;
+}
+.chip.is-active {
+  color: #fff;
+  background: var(--brand);
+  border-color: transparent;
+}
+
+/* ---------- 8. 应用列表 ---------- */
+.section-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -.2px;
+  margin: 22px 0 10px;
+}
+
+.applist { display: flex; flex-direction: column; gap: var(--row-gap); }
+
+.approw {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-row);
+  background: var(--surface);
+  /* 让每个行的布局/绘制互相隔离，长列表滚动更稳 */
+  contain: content;
+}
+
+/* 图标：用渐变 + 首字母，零外部资源 */
+.appicon {
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  background: linear-gradient(145deg, var(--c1), var(--c2));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+
+.appmeta { flex: 1 1 auto; min-width: 0; }
+
+.appname {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appsub {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.3;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.apptag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+.apptag b { color: var(--text-2); font-weight: 600; }
+
+.get-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  min-width: 62px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--brand-soft);
+  transition: transform .14s ease, opacity .14s ease;
+}
+.get-btn:active { transform: scale(.94); }
+.get-btn[data-done='1'] { color: var(--text-3); background: var(--surface-2); }
+
+/* 排行：左侧序号，等宽对齐 */
+.applist--rank .approw { padding-left: 8px; }
+
+.rank-no {
+  flex: 0 0 auto;
+  width: 24px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 9. 搜索页 ---------- */
+.suggest-title {
+  font-size: 12px;
+  letter-spacing: .4px;
+  color: var(--text-3);
+  margin: 14px 2px 8px;
+}
+
+.suggest-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.suggest-item {
+  padding: 8px 13px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: .5px solid var(--line);
+}
+
+.hl { color: var(--brand); font-weight: 700; }
+
+.empty {
+  margin: 48px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+.foot-note {
+  margin: 26px 2px 0;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* ---------- 10. 无障碍与降级 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}

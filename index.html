@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Storefront UI — 一个干净、可教学的应用商店界面 Demo（原生 HTML/CSS/JS，零依赖）">
+<title>Storefront UI · 应用商店界面 Demo</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <header class="topbar" id="topbar">
+    <div class="topbar__row">
+      <h1 class="page-title" id="pageTitle">橱窗</h1>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="切换深浅色">
+        <span id="themeIcon">◐</span>
+      </button>
+    </div>
+
+    <div class="searchrow">
+      <div class="searchbar" id="searchbar">
+        <svg class="searchbar__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10.6 10.6 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <input
+          id="q"
+          class="searchbar__input"
+          type="search"
+          placeholder="搜索应用与游戏"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          enterkeyhint="search"
+          aria-label="搜索应用与游戏">
+        <button class="ghost-btn voice-btn" id="voiceBtn" type="button" aria-label="语音输入">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="6" y="1.6" width="4" height="8" rx="2" fill="currentColor"/>
+            <path d="M3.4 7.6a4.6 4.6 0 0 0 9.2 0M8 12.2V14.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="ghost-btn clear-btn" id="clearBtn" type="button" aria-label="清空" hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.2" fill="currentColor" opacity=".22"/>
+            <path d="M6 6l4 4M10 6l-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <button class="cancel-btn" id="cancelBtn" type="button" hidden>取消</button>
+    </div>
+  </header>
+
+  <main class="content" id="content">
+
+    <!-- 首屏骨架：数据到达前先占位，避免内容跳动 -->
+    <div class="skeleton" id="skeleton" aria-hidden="true">
+      <div class="sk-card"></div>
+      <div class="sk-line sk-line--title"></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+      <div class="sk-line sk-line--title"></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+      <div class="sk-row"><div class="sk-icon"></div><div class="sk-text"><i></i><i></i></div></div>
+    </div>
+
+    <section class="pane" id="home" hidden>
+      <div id="promoSlot"></div>
+      <div class="chips" id="chips"></div>
+      <h2 class="section-title">为你推荐</h2>
+      <ul class="applist" id="recList"></ul>
+      <h2 class="section-title">热门排行</h2>
+      <ol class="applist applist--rank" id="rankList"></ol>
+      <p class="foot-note">Storefront UI · 界面演示，数据全部为虚构示例。</p>
+    </section>
+
+    <section class="pane" id="searchPane" hidden>
+      <div id="suggestSlot"></div>
+      <ul class="applist" id="resultList"></ul>
+      <p class="empty" id="emptyHint" hidden>没有找到匹配的应用，换个关键词试试。</p>
+    </section>
+
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
